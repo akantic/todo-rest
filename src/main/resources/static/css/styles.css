@@ -1,0 +1,38 @@
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: #93a6b7;
+
+}
+
+.logo:hover, .logo:link, .logo:active {
+    text-decoration: none;
+    color: slategrey;
+}
+
+
+.container {
+    text-align: center;
+}
+
+.welcome {
+    margin: 40px;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.welcome span {
+    color: slategrey;
+}
+
+.welcome button {
+    font-size: 20px;
+}
+
+.no-items {
+    margin: 40px;
+    font-size: 20px;
+}
+
+.new-todo {
+}
