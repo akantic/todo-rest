@@ -1,5 +1,7 @@
 package bruno.spring.todorest.models;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,6 +17,7 @@ public class TodoItem {
 
     private String description;
 
+    @CreationTimestamp
     private Date createdAt;
 
     private boolean isCompleted;
@@ -63,14 +66,5 @@ public class TodoItem {
 
     public TodoItem() {
     }
-
-    public TodoItem(String description) {
-        this.description = description;
-        this.createdAt = new Date();
-        this.isCompleted = false;
-        this.completedAt = null;
-    }
-
-
 
 }

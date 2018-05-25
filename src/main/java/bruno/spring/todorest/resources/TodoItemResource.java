@@ -42,13 +42,9 @@ public class TodoItemResource {
     }
 
     @PostMapping("/todos")
-    public ResponseEntity<Object> createTodo(@RequestBody TodoItem todo) {
+    public TodoItem createTodo(@RequestBody TodoItem todo) {
         TodoItem savedTodo = todoService.create(todo);
-
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(savedTodo.getId()).toUri();
-
-        return ResponseEntity.created(location).build();
+        return savedTodo;
     }
 
     @PutMapping("/todos/{id}")
