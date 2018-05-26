@@ -25,11 +25,17 @@ function updateTodo(todo) {
 
 function addNewTodo() {
     let todo = {
-        description: document.getElementById("form-description").value
+        description: document.getElementById("form-description").value,
+        dueDate: document.getElementById("form-duedate").value
     };
 
     // Validation
-    if (!todo.description) {
+    if (!todo.description ) {
+        console.log("Invalid description");
+        return;
+    }
+    if (!todo.dueDate || new Date(todo.dueDate) < new Date()){
+        console.log("Invalid date");
         return;
     }
     $.ajax({
@@ -39,7 +45,6 @@ function addNewTodo() {
         data: JSON.stringify(todo),
         success: function(data) {
             hideAddNewTodoModal();
-            document.getElementById("form-description").value = "";
             getTodos({completed: false});
         }
     });
@@ -68,6 +73,8 @@ function getStarted() {
 }
 
 function showAddNewTodoModal() {
+    document.getElementById("form-description").value = "";
+    document.getElementById("form-duedate").valueAsDate = new Date((new Date()).getTime() + 7*24*60*60*1000);
     document.getElementById("new-todo-modal").style.display = "block";
 }
 
@@ -114,10 +121,13 @@ function markTodoAsComplete(id) {
 
 function addTodoToTable(todo) {
     let table = document.getElementById("todo-table");
-    let date = todo.createdAt.split("T")[0];
+    let dueDate = todo.dueDate.split("T")[0];
+    let daysLeft = Math.floor((new Date(dueDate).getTime() - new Date().getTime()) / (24*60*60*1000));
+    dueDate = dueDate.split("-");
+    let formattedDate = dueDate[1] + "-" + dueDate[2] + "-" + dueDate[0];
     let newRow = table.insertRow();
     newRow.insertCell().appendChild(document.createTextNode(todo.description));
-    newRow.insertCell().appendChild(document.createTextNode(date));
+    newRow.insertCell().innerHTML = `${formattedDate} <span class="date-alert">(in ${daysLeft} days)</span>`
     if (!todo.completed) {
         newRow.insertCell().innerHTML = `
             <button onclick="markTodoAsComplete(${todo.id});" class="btn btn-success">

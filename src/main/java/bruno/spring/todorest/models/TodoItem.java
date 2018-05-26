@@ -24,6 +24,8 @@ public class TodoItem {
 
     private Date completedAt;
 
+    private Date dueDate;
+
     public Long getId() {
         return id;
     }
@@ -64,6 +66,14 @@ public class TodoItem {
         this.completedAt = completedAt;
     }
 
+    public Date getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(Date dueDate) {
+        this.dueDate = dueDate;
+    }
+
     public TodoItem() {
     }
 
@@ -71,5 +81,6 @@ public class TodoItem {
     public String toString() {
         return "Id: " + id + "\nDescription: " + description + "\nCompleted: " + isCompleted;
     }
+
 
 }
