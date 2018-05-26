@@ -34,7 +34,8 @@
     font-size: 20px;
 }
 
-.new-todo {
+#buttons div{
+    display: inline-block;
 }
 
 /* New todo modal form style */

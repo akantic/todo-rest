@@ -20,7 +20,7 @@ public class TodoItem {
     @CreationTimestamp
     private Date createdAt;
 
-    private boolean isCompleted;
+    private boolean isCompleted = false;
 
     private Date completedAt;
 
@@ -65,6 +65,11 @@ public class TodoItem {
     }
 
     public TodoItem() {
+    }
+
+    @Override
+    public String toString() {
+        return "Id: " + id + "\nDescription: " + description + "\nCompleted: " + isCompleted;
     }
 
 }

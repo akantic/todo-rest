@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TodoItemServiceImpl implements TodoItemService {
@@ -40,5 +41,15 @@ public class TodoItemServiceImpl implements TodoItemService {
     @Override
     public void delete(Long id) {
         todoItemRepo.deleteById(id);
+    }
+
+    @Override
+    public List<TodoItem> findActive() {
+        return findAll().stream().filter(t -> !t.isCompleted()).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TodoItem> findCompleted() {
+        return findAll().stream().filter(t -> t.isCompleted()).collect(Collectors.toList());
     }
 }

@@ -3,6 +3,7 @@ package bruno.spring.todorest.resources;
 import bruno.spring.todorest.models.TodoItem;
 import bruno.spring.todorest.services.TodoItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -26,6 +27,15 @@ public class TodoItemResource {
         return todoService.findAll();
     }
 
+    @GetMapping(value = "/todos", params = "completed")
+    public List<TodoItem> retrieveFilteredTodos(@RequestParam String completed) {
+        if (completed.equals("true")) {
+            return todoService.findCompleted();
+        } else {
+            return todoService.findActive();
+        }
+    }
+
     @GetMapping("/todos/{id}")
     public TodoItem retrieveTodo(@PathVariable long id) {
         Optional<TodoItem> todo = todoService.find(id);
@@ -37,8 +47,9 @@ public class TodoItemResource {
     }
 
     @DeleteMapping("/todos/{id}")
-    public void deleteTodo(@PathVariable long id) {
+    public ResponseEntity<Object> deleteTodo(@PathVariable long id) {
         todoService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/todos")
@@ -48,14 +59,21 @@ public class TodoItemResource {
     }
 
     @PutMapping("/todos/{id}")
-    public ResponseEntity<Object> updateStudent(@RequestBody TodoItem todo, @PathVariable long id) {
+    public ResponseEntity<Object> updateTodo(@RequestBody TodoItem todo, @PathVariable long id) {
         Optional<TodoItem> todoOptional = todoService.find(id);
-
         if (!todoOptional.isPresent())
             todo = null;
 
-        todo.setId(id);
-        todoService.update(todo);
+        TodoItem realTodo = todoOptional.get();
+
+        if (todo.getDescription() != null) {
+            realTodo.setDescription(todo.getDescription());
+        }
+        if (todo.isCompleted()) {
+            realTodo.setCompleted(true);
+        }
+
+        todoService.update(realTodo);
         return ResponseEntity.noContent().build();
     }
 }
