@@ -1,14 +1,14 @@
 package bruno.spring.todorest.resources;
 
 import bruno.spring.todorest.models.TodoItem;
+import bruno.spring.todorest.models.validators.TodoItemValidator;
 import bruno.spring.todorest.services.TodoItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -54,8 +54,14 @@ public class TodoItemResource {
     }
 
     @PostMapping("/todos")
-    public TodoItem createTodo(@RequestBody TodoItem todo) {
-        return todoService.create(todo);
+    public ResponseEntity<Object> createTodo(@RequestBody TodoItem todo, BindingResult result) {
+        TodoItemValidator validator = new TodoItemValidator();
+        validator.validate(todo, result);
+        if (result.hasErrors()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body(todoService.create(todo));
+        }
     }
 
     @PutMapping("/todos/{id}")

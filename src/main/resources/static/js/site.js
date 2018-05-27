@@ -26,10 +26,12 @@ function updateTodo(todo) {
 function addNewTodo() {
     let labelHolder = document.getElementById("label-holder");
     let labels = [];
-    for (l of labelHolder.children) {
-        for (c of l.children) {
-            if (c.className === "label-id") {
-                labels.push({id:c.value});
+    if (labelHolder != null) {
+        for (l of labelHolder.children) {
+            for (c of l.children) {
+                if (c.className === "label-id") {
+                    labels.push({id: c.value});
+                }
             }
         }
     }
@@ -76,6 +78,8 @@ function deleteTodo(id, view) {
 }
 
 function getStarted() {
+    getTodos({completed: false});
+
     document.getElementById("main").innerHTML +=
         `<div id="buttons">
             <div id="switch-todos">
@@ -84,7 +88,6 @@ function getStarted() {
                 <button onclick='showAddNewTodoModal()' class="btn btn">New Todo item</button>
             </div>
         </div>`;
-    getTodos({completed: false});
 }
 
 function showAddNewTodoModal() {

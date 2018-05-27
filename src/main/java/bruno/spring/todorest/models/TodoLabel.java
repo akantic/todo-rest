@@ -14,6 +14,7 @@ public class TodoLabel {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique=true)
     private String value;
 
     @ManyToMany(mappedBy = "labels")
