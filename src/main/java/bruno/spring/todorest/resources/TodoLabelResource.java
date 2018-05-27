@@ -35,7 +35,13 @@ public class TodoLabelResource {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } else {
             label.setValue(label.getValue().toUpperCase());
-            return ResponseEntity.status(HttpStatus.OK).body(labelService.create(label));
+            TodoLabel createdLabel = null;
+            try {
+                createdLabel = labelService.create(label);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(createdLabel);
         }
     }
 

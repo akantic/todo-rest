@@ -41,20 +41,26 @@ function addNewTodo() {
         labels: labels
     };
 
+    let errorDiv = document.getElementById("todo-errors");
+    errorDiv.innerHTML = "";
+    let errors = false;
     // Validation
-    if (!todo.description ) {
+    if (!todo.description || todo.description.length < 3) {
         console.log("Invalid description");
-        return;
+        errorDiv.innerHTML += `<div class="todo-error">Description should be 3-100 characters long.</div>`
+        errors = true;
     }
     if (!todo.dueDate || new Date(todo.dueDate) < new Date()){
         console.log("Invalid date");
-        return;
+        errorDiv.innerHTML += `<div class="todo-error">Date is invalid.</div>`
+        errors = true;
     }
     if (todo.labels.length > 3) {
         console.log("Too many labels");
-        return;
+        errorDiv.innerHTML += `<div class="todo-error">Max number of labels is 3.</div>`
+        errors = true;
     }
-
+    if (errors) return;
     $.ajax({
         type: 'POST',
         url: '/todos',
@@ -63,6 +69,9 @@ function addNewTodo() {
         success: function(data) {
             hideAddNewTodoModal();
             getTodos({completed: false});
+        },
+        failure: function(data) {
+            errorDiv.innerHTML += `<div class="todo-error">Invalid request</div>`
         }
     });
 }
@@ -95,6 +104,7 @@ function showAddNewTodoModal() {
     document.getElementById("form-duedate").valueAsDate = new Date((new Date()).getTime() + 7*24*60*60*1000);
     document.getElementById("new-todo-modal").style.display = "block";
     document.getElementById("selected-labels").innerHTML = "";
+    document.getElementById("todo-errors").innerHTML = "";
 }
 
 function showLabelList() {
@@ -170,6 +180,9 @@ function deleteLabel(label) {
         url: '/labels/' + label.id,
         success: function() {
             removeLabel(label);
+        },
+        failure: function() {
+            console.log("HI");
         }
     });
 
@@ -177,6 +190,7 @@ function deleteLabel(label) {
 
 function removeLabel(label) {
     let holder = document.getElementById("label-holder");
+    if (!holder) return;
     for (l of holder.children) {
         if (parseInt(l.children[0].value) === label.id){
             holder.removeChild(l);
@@ -251,7 +265,11 @@ function addTodoToTable(todo) {
         let daysLeft = Math.floor((new Date(dueDate).getTime() - new Date().getTime()) / (24*60*60*1000));
         dueDate = dueDate.split("-");
         let formattedDate = dueDate[1] + "-" + dueDate[2] + "-" + dueDate[0];
-        newRow.insertCell().innerHTML = `${formattedDate} <span class="date-alert">(in ${daysLeft} days)</span>`
+        if (daysLeft > 0) {
+            newRow.insertCell().innerHTML = `${formattedDate} <span class="date-alert">(in ${daysLeft} days)</span>`
+        } else {
+            newRow.insertCell().innerHTML = `${formattedDate} <span class="date-alert">(${Math.abs(daysLeft)} days ago)</span>`
+        }
         newRow.insertCell().innerHTML = `
             <button onclick="markTodoAsComplete(${todo.id});" class="btn btn-success">
                 <i class="fas fa-check-circle"></i>

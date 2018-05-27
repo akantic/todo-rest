@@ -188,3 +188,8 @@ input {
 .label-display-row .label-badge{
     margin: 2px;
 }
+
+#todo-errors {
+    color: red;
+    margin: 5px;
+}
