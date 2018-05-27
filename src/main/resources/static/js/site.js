@@ -24,9 +24,19 @@ function updateTodo(todo) {
 }
 
 function addNewTodo() {
+    let labelHolder = document.getElementById("label-holder");
+    let labels = [];
+    for (l of labelHolder.children) {
+        for (c of l.children) {
+            if (c.className === "label-id") {
+                labels.push({id:c.value});
+            }
+        }
+    }
     let todo = {
         description: document.getElementById("form-description").value,
-        dueDate: document.getElementById("form-duedate").value
+        dueDate: document.getElementById("form-duedate").value,
+        labels: labels
     };
 
     // Validation
@@ -38,6 +48,11 @@ function addNewTodo() {
         console.log("Invalid date");
         return;
     }
+    if (todo.labels.length > 3) {
+        console.log("Too many labels");
+        return;
+    }
+
     $.ajax({
         type: 'POST',
         url: '/todos',
@@ -76,6 +91,7 @@ function showAddNewTodoModal() {
     document.getElementById("form-description").value = "";
     document.getElementById("form-duedate").valueAsDate = new Date((new Date()).getTime() + 7*24*60*60*1000);
     document.getElementById("new-todo-modal").style.display = "block";
+    document.getElementById("selected-labels").innerHTML = "";
 }
 
 function showLabelList() {
@@ -85,23 +101,32 @@ function showLabelList() {
         dataType: 'json',
         success: function(data) {
             let labelList = document.getElementById("label-list");
+            labelList.innerHTML = "";
             for (label of data) {
                 labelList.innerHTML +=
                     `<div>
                         <a href="#" onclick='addLabelToTodo(${JSON.stringify(label)});'>${label.value}</a>
-                        <button class="btn btn-danger" onclick='deleteLabel(${JSON.stringify(label)});'>&Cross;</button>
+                        <button class="btn btn-danger btn-del-label" onclick='deleteLabel(${JSON.stringify(label)});'>&Cross;</button>
                     </div>`;
 
             }
             labelList.classList.toggle("show");
+            window.onclick = function(event) {
+                if (!event.target.matches('.dropbtn')) {
+                    if (document.getElementById("label-list").classList.contains("show")) {
+                        document.getElementById("label-list").classList.toggle("show");
+                        window.onclick = undefined;
+                    }
+                }
+            };
         }
     });
 
 }
 
 function addNewLabel() {
-    let labelValue = document.getElementById("form-labelname").value;
-    if (!labelValue) {
+    let labelValue = document.getElementById("form-labelname").value.trim();
+    if (!labelValue || labelValue.length > 10) {
         return;
     }
     let label = {"value" : labelValue};
@@ -112,12 +137,28 @@ function addNewLabel() {
         data: JSON.stringify(label),
         success: function(data) {
             document.getElementById("form-labelname").value = "";
-            console.log(data);
+            addLabelToTodo(data);
         }
     });
 }
 
 function addLabelToTodo(label) {
+    let labelList = document.getElementById("selected-labels");
+    if (labelList.children.length === 0) {
+        labelList.innerHTML = `<span>Selected labels: </span><div id="label-holder"></div>`;
+    }
+    let holder = document.getElementById("label-holder");
+    for (l of holder.children) {
+        if (parseInt(l.children[0].value) === label.id) {
+            return;
+        }
+    }
+    holder.innerHTML +=
+        `<div class="label-container">
+            <input type="text" value="${label.id}" hidden class="label-id">
+            <span class="badge badge-info label-badge">${label.value.toUpperCase()}</span>
+            <button class="btn btn-danger btn-rmv-label" onclick='removeLabel(${JSON.stringify(label)});'>&Cross;</button>
+        </div>`;
 }
 
 function deleteLabel(label) {
@@ -125,9 +166,22 @@ function deleteLabel(label) {
         type: 'DELETE',
         url: '/labels/' + label.id,
         success: function() {
+            removeLabel(label);
         }
     });
 
+}
+
+function removeLabel(label) {
+    let holder = document.getElementById("label-holder");
+    for (l of holder.children) {
+        if (parseInt(l.children[0].value) === label.id){
+            holder.removeChild(l);
+        }
+    }
+    if (holder.children.length === 0) {
+        document.getElementById("selected-labels").innerHTML = "";
+    }
 }
 
 
@@ -148,6 +202,7 @@ function loadTodoTable(data, options) {
             `<table id="todo-table" class="table">
                 <tr>
                     <th>Description</th>
+                    <th>Labels</th>
                     <th>${date}</th>
                     <th></th>
                 </tr>
@@ -177,6 +232,17 @@ function addTodoToTable(todo) {
     let table = document.getElementById("todo-table");
     let newRow = table.insertRow();
     newRow.insertCell().appendChild(document.createTextNode(todo.description));
+    let labels = document.createElement("div");
+    labels.className = "label-display-row"
+    if (todo.labels.length > 0) {
+        for (l of todo.labels) {
+            labels.innerHTML += `<span class="badge badge-info label-badge">${l.value.toUpperCase()}</span>`;
+        }
+
+    } else {
+        labels.innerHTML = "-";
+    }
+    newRow.insertCell().appendChild(labels);
     if (!todo.completed) {
         let dueDate = todo.dueDate.split("T")[0];
         let daysLeft = Math.floor((new Date(dueDate).getTime() - new Date().getTime()) / (24*60*60*1000));
@@ -202,13 +268,3 @@ function addTodoToTable(todo) {
 }
 
 
-window.onclick = function(event) {
-    if (!event.target.matches('.dropbtn')) {
-        if (document.getElementById("label-list").classList.contains("show")) {
-            document.getElementById("label-list").classList.toggle("show");
-            let labelList = document.getElementById("label-list");
-            labelList.innerHTML = "";
-        }
-
-    }
-};

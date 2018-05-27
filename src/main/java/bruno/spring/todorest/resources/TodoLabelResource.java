@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class TodoLabelResource {
@@ -30,7 +31,12 @@ public class TodoLabelResource {
 
     @DeleteMapping("/labels/{id}")
     public ResponseEntity<Object> deleteTodo(@PathVariable long id) {
-        labelService.delete(id);
+        Optional<TodoLabel> label = labelService.find(id);
+        if (label.isPresent()) {
+            if (label.get().getTodoItems().size() == 0) {
+                labelService.delete(id);
+            }
+        }
         return ResponseEntity.noContent().build();
     }
 }

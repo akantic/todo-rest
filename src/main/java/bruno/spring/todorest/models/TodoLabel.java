@@ -1,9 +1,12 @@
 package bruno.spring.todorest.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class TodoLabel {
@@ -12,6 +15,10 @@ public class TodoLabel {
     private Long id;
 
     private String value;
+
+    @ManyToMany(mappedBy = "labels")
+    @JsonIgnore
+    private List<TodoItem> todoItems = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -29,6 +36,29 @@ public class TodoLabel {
         this.value = value;
     }
 
+    public List<TodoItem> getTodoItems() {
+        return todoItems;
+    }
+
+    public void setTodoItems(List<TodoItem> todoItems) {
+        this.todoItems = todoItems;
+    }
+
+    public void addTodo(TodoItem todo) {
+        if(!this.todoItems.contains(todo)) {
+            this.todoItems.add(todo);
+        }
+
+        if(!todo.getLabels().contains(this)) {
+            todo.getLabels().add(this);
+        }
+    }
+
+    public void removeTodo(TodoItem todo) {
+        this.todoItems.remove(todo);
+        todo.getLabels().remove(this);
+    }
+
     public TodoLabel() {
 
     }
@@ -37,4 +67,6 @@ public class TodoLabel {
     public String toString() {
         return "Id: " + id + "\nValue: " + value + "\n";
     }
+
+
 }

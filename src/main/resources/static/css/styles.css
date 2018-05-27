@@ -108,7 +108,7 @@ input {
 
 /* Labels in form */
 .labels input {
-    width: 60%;
+    width: 75%;
     padding: 12px 20px;
     margin: 8px 0;
     display: inline-block;
@@ -116,9 +116,13 @@ input {
 }
 
 .dropdown-content {
+    margin-top: -5px;
+    margin-bottom: 10px;
     display: none;
     background-color: #f1f1f1;
-    width: 170px;
+    width: 190px;
+    max-height: 200px;
+    overflow: auto;
 }
 
 .dropdown-content div {
@@ -126,17 +130,22 @@ input {
     padding: 2px;
 }
 
+.btn-add-label {
+    padding: 12px 20px;
+    margin: 8px 0;
+}
+
 .dropdown-content a {
     color: black;
     padding-left: 10px;
     text-decoration: none;
     display:inline-block;
-    width:120px;
+    width:130px;
     height: 40px;
     line-height: 40px;
 }
 
-.dropdown-content button {
+.dropdown-content .btn-del-label {
     background-color: red;
     color: white;
     display: inline-block;
@@ -149,3 +158,33 @@ input {
 .dropdown-content a:hover {background-color: #ddd}
 
 .show {display:block;}
+
+#label-holder {
+    text-align: center;
+    margin: 20px;
+}
+
+#label-holder {
+    text-align: center;
+}
+
+.label-badge {
+    height: 25px;
+    font-size: 15px;
+    line-height: 20px;
+    font-weight: bold;
+}
+
+.label-container {
+    margin: 5px;
+}
+
+.btn-rmv-label {
+    padding: 0;
+    height: 25px;
+    width: 25px;
+}
+
+.label-display-row .label-badge{
+    margin: 2px;
+}

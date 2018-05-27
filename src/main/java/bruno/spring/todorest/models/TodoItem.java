@@ -2,11 +2,10 @@ package bruno.spring.todorest.models;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class TodoItem {
@@ -25,6 +24,14 @@ public class TodoItem {
     private Date completedAt;
 
     private Date dueDate;
+
+    @ManyToMany
+    @JoinTable(
+            name = "Todos_labels",
+            joinColumns = { @JoinColumn(name = "todo_id", referencedColumnName = "id") },
+            inverseJoinColumns = { @JoinColumn(name = "label_id", referencedColumnName = "id") }
+    )
+    private List<TodoLabel> labels = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -74,6 +81,29 @@ public class TodoItem {
         this.dueDate = dueDate;
     }
 
+    public List<TodoLabel> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(List<TodoLabel> labels) {
+        this.labels = labels;
+    }
+
+    public void addLabel(TodoLabel label) {
+        if (!this.labels.contains(label)) {
+            this.labels.add(label);
+        }
+
+        if (!label.getTodoItems().contains(this)) {
+            label.getTodoItems().add(this);
+        }
+    }
+
+    public void removeLabel(TodoLabel label) {
+        this.labels.remove(label);
+        label.getTodoItems().remove(this);
+    }
+
     public TodoItem() {
     }
 
@@ -81,6 +111,7 @@ public class TodoItem {
     public String toString() {
         return "Id: " + id + "\nDescription: " + description + "\nCompleted: " + isCompleted;
     }
+
 
 
 }
