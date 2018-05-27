@@ -78,12 +78,66 @@ function showAddNewTodoModal() {
     document.getElementById("new-todo-modal").style.display = "block";
 }
 
+function showLabelList() {
+    $.ajax({
+        type: 'GET',
+        url: '/labels',
+        dataType: 'json',
+        success: function(data) {
+            let labelList = document.getElementById("label-list");
+            for (label of data) {
+                labelList.innerHTML +=
+                    `<div>
+                        <a href="#" onclick='addLabelToTodo(${JSON.stringify(label)});'>${label.value}</a>
+                        <button class="btn btn-danger" onclick='deleteLabel(${JSON.stringify(label)});'>&Cross;</button>
+                    </div>`;
+
+            }
+            labelList.classList.toggle("show");
+        }
+    });
+
+}
+
+function addNewLabel() {
+    let labelValue = document.getElementById("form-labelname").value;
+    if (!labelValue) {
+        return;
+    }
+    let label = {"value" : labelValue};
+    $.ajax({
+        type: 'POST',
+        url: '/labels',
+        contentType: 'application/json',
+        data: JSON.stringify(label),
+        success: function(data) {
+            document.getElementById("form-labelname").value = "";
+            console.log(data);
+        }
+    });
+}
+
+function addLabelToTodo(label) {
+}
+
+function deleteLabel(label) {
+    $.ajax({
+        type: 'DELETE',
+        url: '/labels/' + label.id,
+        success: function() {
+        }
+    });
+
+}
+
+
 function hideAddNewTodoModal() {
     document.getElementById("new-todo-modal").style.display = "none";
 }
 
 function loadTodoTable(data, options) {
     mainContainer = document.getElementById("todo-container");
+    let date = options.completed ? "Completed At" : "Due Date";
     if (data.length < 1) {
         mainContainer.innerHTML =
             `<div class="no-items">
@@ -94,7 +148,7 @@ function loadTodoTable(data, options) {
             `<table id="todo-table" class="table">
                 <tr>
                     <th>Description</th>
-                    <th>Due date</th>
+                    <th>${date}</th>
                     <th></th>
                 </tr>
             </table>`;
@@ -121,14 +175,14 @@ function markTodoAsComplete(id) {
 
 function addTodoToTable(todo) {
     let table = document.getElementById("todo-table");
-    let dueDate = todo.dueDate.split("T")[0];
-    let daysLeft = Math.floor((new Date(dueDate).getTime() - new Date().getTime()) / (24*60*60*1000));
-    dueDate = dueDate.split("-");
-    let formattedDate = dueDate[1] + "-" + dueDate[2] + "-" + dueDate[0];
     let newRow = table.insertRow();
     newRow.insertCell().appendChild(document.createTextNode(todo.description));
-    newRow.insertCell().innerHTML = `${formattedDate} <span class="date-alert">(in ${daysLeft} days)</span>`
     if (!todo.completed) {
+        let dueDate = todo.dueDate.split("T")[0];
+        let daysLeft = Math.floor((new Date(dueDate).getTime() - new Date().getTime()) / (24*60*60*1000));
+        dueDate = dueDate.split("-");
+        let formattedDate = dueDate[1] + "-" + dueDate[2] + "-" + dueDate[0];
+        newRow.insertCell().innerHTML = `${formattedDate} <span class="date-alert">(in ${daysLeft} days)</span>`
         newRow.insertCell().innerHTML = `
             <button onclick="markTodoAsComplete(${todo.id});" class="btn btn-success">
                 <i class="fas fa-check-circle"></i>
@@ -137,9 +191,24 @@ function addTodoToTable(todo) {
                 <i class="fas fa-times-circle"></i>
             </button>`;
     } else {
+        let dateCompleted = todo.completedAt.split("T")[0].split("-");
+        let formattedDate = dateCompleted[1] + "-" + dateCompleted[2] + "-" + dateCompleted[0];
+        newRow.insertCell().innerHTML = `${formattedDate}`
         newRow.insertCell().innerHTML = `
             <button onclick="deleteTodo(${todo.id}, ${todo.completed});" class="btn btn-danger">
                 <i class="fas fa-times-circle"></i>
             </button>`;
     }
 }
+
+
+window.onclick = function(event) {
+    if (!event.target.matches('.dropbtn')) {
+        if (document.getElementById("label-list").classList.contains("show")) {
+            document.getElementById("label-list").classList.toggle("show");
+            let labelList = document.getElementById("label-list");
+            labelList.innerHTML = "";
+        }
+
+    }
+};

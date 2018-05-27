@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,8 +55,7 @@ public class TodoItemResource {
 
     @PostMapping("/todos")
     public TodoItem createTodo(@RequestBody TodoItem todo) {
-        TodoItem savedTodo = todoService.create(todo);
-        return savedTodo;
+        return todoService.create(todo);
     }
 
     @PutMapping("/todos/{id}")
@@ -70,6 +70,7 @@ public class TodoItemResource {
             realTodo.setDescription(todo.getDescription());
         }
         if (todo.isCompleted()) {
+            realTodo.setCompletedAt(new Date());
             realTodo.setCompleted(true);
         }
 
