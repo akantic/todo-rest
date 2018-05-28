@@ -38,13 +38,13 @@ public class TodoItemResource {
     }
 
     @GetMapping("/todos/{id}")
-    public TodoItem retrieveTodo(@PathVariable long id) {
+    public ResponseEntity<Object> retrieveTodo(@PathVariable long id) {
         Optional<TodoItem> todo = todoService.find(id);
 
         if (!todo.isPresent())
-            todo = null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 
-        return todo.get();
+        return ResponseEntity.status(HttpStatus.OK).body(todo);
     }
 
     @DeleteMapping("/todos/{id}")
@@ -68,7 +68,7 @@ public class TodoItemResource {
     public ResponseEntity<Object> updateTodo(@RequestBody TodoItem todo, @PathVariable long id) {
         Optional<TodoItem> todoOptional = todoService.find(id);
         if (!todoOptional.isPresent())
-            todo = null;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 
         TodoItem realTodo = todoOptional.get();
 

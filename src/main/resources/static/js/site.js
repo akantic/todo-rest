@@ -87,8 +87,8 @@ function deleteTodo(id, view) {
 }
 
 function getStarted() {
+    document.getElementById("todo-container").innerHTML = `<div class="no-items">Fetching data...</div>`;
     getTodos({completed: false});
-
     document.getElementById("main").innerHTML +=
         `<div id="buttons">
             <div id="switch-todos">
